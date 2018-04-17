@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 # coding: utf-8
 
-__version__ = '0.1'
+__version__ = '1.0'
 __author__ = 'John Afaghpour'
 
 """
@@ -17,7 +17,7 @@ import dataset
 def estimate_price(data, theta):
 
     try:
-        mileage = input("Please enter a mileage to estimate the price: ")
+        mileage = input("Please enter a mileage to estimate the car price: ")
         mileage = float(mileage)
     except (TypeError, NameError) as e:
         exit('error: mileage is not valid')
@@ -40,4 +40,4 @@ if __name__ == '__main__':
     data = dataset.get_training('data.csv')
     theta = dataset.get_theta('theta.csv')
     price = estimate_price(data, theta)
-    print('Estimated price is {}$'.format(price))
+    print('This car is worth %d$' % price)

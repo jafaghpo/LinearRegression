@@ -1,7 +1,7 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 # coding: utf-8
 
-__version__ = '0.1'
+__version__ = '1.0'
 __author__ = 'John Afaghpour'
 
 """
@@ -26,7 +26,7 @@ def get_training(path):
     try:
         data = read_csv(path, dtype='float')
     except Exception as e:
-        exit("error: {}".format(e))
+        exit('error: {}'.format(e))
     return data
 
 
@@ -36,9 +36,17 @@ def get_theta(path):
         data = read_csv(path, dtype='float')
         theta = [float(data.t0), float(data.t1)]
     except Exception:
-        theta = [0, 0]
+        print('theta.csv is missing, you should train before estimating a price.')
+        print('Setting theta values to zero ...')
+        theta = [0., 0.]
     return theta
 
 
+def put_theta(path, theta):
+
+    with open(path, 'w') as f:
+        f.write('t0,t1\n{},{}\n'.format(theta[0], theta[1]))
+
 if __name__ == '__main__':
     print('This is a module containing only functions so there is no point in running this file.')
+

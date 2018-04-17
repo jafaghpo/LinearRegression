@@ -1,2 +1,4 @@
-*.pyc
+*.py[cod]
 *.vscode
+__pycache__
+theta.csv
