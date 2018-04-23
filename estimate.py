@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 # coding: utf-8
 
 __version__ = '1.0'
@@ -19,7 +19,7 @@ def estimate_price(data, theta):
     try:
         mileage = input("Please enter a mileage to estimate the car price: ")
         mileage = float(mileage)
-    except (TypeError, NameError) as e:
+    except (TypeError, NameError, SyntaxError) as e:
         exit('error: mileage is not valid')
     except (KeyboardInterrupt, SystemExit):
         exit('\nInterrupted')
