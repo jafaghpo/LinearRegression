@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # coding: utf-8
 
-__version__ = '1.0'
 __author__ = 'John Afaghpour'
 
 """
@@ -21,7 +20,7 @@ def denormalize(x, min, max):
     return x * (max - min) + min
 
 
-def get_training(path):
+def get_data(path):
 
     try:
         data = read_csv(path, dtype='float')

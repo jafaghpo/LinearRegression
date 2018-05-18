@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # coding: utf-8
 
-__version__ = '1.0'
 __author__ = 'John Afaghpour'
 
 """
@@ -11,7 +10,7 @@ __author__ = 'John Afaghpour'
     optimize training speed.
 """
 
-import dataset
+from dataset.action import *
 
 
 def estimate_price(data, theta):
@@ -27,17 +26,21 @@ def estimate_price(data, theta):
         print('A mileage cannot be negative, try again')
         return estimate_price(data, theta)
     try:
-        mileage = dataset.normalize(mileage, min(data.km), max(data.km))
+        mileage = normalize(mileage, min(data.km), max(data.km))
     except ZeroDivisionError as e:
         exit('error: {}'.format(e))
     price = theta[0] + theta[1] * mileage
     if price > 0:
-        price = dataset.denormalize(price, min(data.price), max(data.price))
+        price = denormalize(price, min(data.price), max(data.price))
     return price if price > 0 else 0
 
 
-if __name__ == '__main__':
-    data = dataset.get_training('data.csv')
-    theta = dataset.get_theta('theta.csv')
+def main():
+
+    data = get_data('dataset/data.csv')
+    theta = get_theta('dataset/theta.csv')
     price = estimate_price(data, theta)
     print('This car is worth %d$' % price)
+
+if __name__ == '__main__':
+    main()

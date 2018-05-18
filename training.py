@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # coding: utf-8
 
-__version__ = '1.0'
 __author__ = 'John Afaghpour'
 
 """
@@ -10,8 +9,8 @@ __author__ = 'John Afaghpour'
     is used to do so.
 """
 
-import dataset
 from sys import argv
+from dataset.action import *
 import matplotlib.pyplot as plt
 
 
@@ -25,43 +24,51 @@ def display(data, t0, t1, record):
     X = [min(data.km), max(data.km)]
     Y = []
     for m in X:
-        m = t1 * dataset.normalize(m, min(data.km), max(data.km)) + t0
-        price = dataset.denormalize(m, min(data.price), max(data.price))
+        m = t1 * normalize(m, min(data.km), max(data.km)) + t0
+        price = denormalize(m, min(data.price), max(data.price))
         Y.append(price)
 
-    plt.figure(1)
+    fig = plt.figure(figsize=(25, 15), facecolor='beige')
+    fig.canvas.set_window_title('Training records')
+    plt.subplot(2, 2, 1)
     plt.plot(data.km, data.price, 'o')
-    plt.plot(X, Y, linestyle='--', linewidth=4.0)
+    plt.plot(X, Y, linestyle='--', linewidth=4.0, color='green')
     plt.ylabel('Price')
     plt.xlabel('Mileage')
+    plt.title('Linear regression')
+    plt.grid(True)
 
-    plt.figure(2)
-    plt.plot(record['loss'], linewidth=3.0)
-    plt.ylabel('loss')
-    plt.xlabel('iteration')
+    plt.subplot(2, 2, 2)
+    plt.plot(record['loss'], linewidth=3.0, color='green')
+    plt.ylabel('Loss')
+    plt.xlabel('Iteration')
+    plt.title('Losses over time')
+    plt.grid(True)
 
-    plt.figure(3)
-    plt.plot(record['t0'], linewidth=3.0)
-    plt.ylabel('t0')
-    plt.xlabel('iteration')
+    plt.subplot(2, 2, 3)
+    theta0, = plt.plot(record['t0'], linewidth=3.0, label='t0', color='red')
+    theta1, = plt.plot(record['t1'], linewidth=3.0, label='t1', color='blue')
+    plt.legend([theta0, theta1], ['t0', 't1'], loc='best')
+    plt.ylabel('Theta')
+    plt.xlabel('Iteration')
+    plt.title('Theta values over time')
+    plt.grid(True)
 
-    plt.figure(4)
-    plt.plot(record['t1'], linewidth=3.0)
-    plt.ylabel('t1')
-    plt.xlabel('iteration')
+    plt.subplot(2, 2, 4)
+    plt.plot(record['lr'], linestyle='-', linewidth=3.0, color='green')
+    plt.ylabel('Learning rate')
+    plt.xlabel('Iteration')
+    plt.title('Learning rate over time')
+    plt.grid(True)
 
-    plt.figure(5)
-    plt.plot(record['lr'], linestyle='-', linewidth=3.0)
-    plt.ylabel('learning rate')
-    plt.xlabel('iteration')
     plt.show()
 
 
-def bold_driver(lr, old, new):
+def bold_driver(LR, old, new):
 
     if old < new:
-        return lr * 0.5, old
-    return lr * 1.05, new
+        return LR * 0.5, old
+    return LR * 1.05, new
 
 
 def get_cost(size, theta, km, price):
@@ -72,43 +79,47 @@ def get_cost(size, theta, km, price):
     return total_error / float(size)
 
 
-def gradient_descent(km, price, m, theta=[0.0, 0.0], i=90):
+def gradient_descent(km, price, M, theta=[0.0, 0.0], i=90):
 
     record = {'t0':[], 't1':[], 'loss':[], 'lr':[]}
-    size = int(m)
-    lr = 1 / m * 2
+    size = int(M)
+    LR = 1 / M * 2
     old = [0.0, 0.0]
     losses = [0.0, 0.0]
     for _ in range(i):
-        old = [losses[0] / m, losses[1] / m]
+        old = [losses[0] / M, losses[1] / M]
         losses = [0.0, 0.0]
         for i in range(size):
             losses[0] += hypothesis(km[i], theta) - price[i]
             losses[1] += (hypothesis(km[i], theta) - price[i]) * km[i]
-        losses[0] /= m
-        losses[1] /= m
-        lr, losses = bold_driver(lr, old, losses)
-        theta[0] = theta[0] - lr * losses[0]
-        theta[1] = theta[1] - lr * losses[1]
+        losses[0] /= M
+        losses[1] /= M
+        LR, losses = bold_driver(LR, old, losses)
+        theta[0] = theta[0] - LR * losses[0]
+        theta[1] = theta[1] - LR * losses[1]
         record['loss'].append(get_cost(size, theta, km, price))
         record['t0'].append(theta[0])
         record['t1'].append(theta[1])
-        record['lr'].append(lr)
+        record['lr'].append(LR)
     return theta, record
 
-graph = True if 'graph' in argv else False
-if not graph:
-    print('pro tip: you can display graphs with "graph" argument')
 
-if __name__ == '__main__':
-    data = dataset.get_training('data.csv')
-    km = dataset.normalize(data.km, min(data.km), max(data.km))
-    price = dataset.normalize(data.price, min(data.price), max(data.price))
+def main():
+
+    graph = True if 'graph' in argv else False
+    if not graph:
+        print('pro tip: you can display graphs with "graph" argument')
+    data = get_data('dataset/data.csv')
+    km = normalize(data.km, min(data.km), max(data.km))
+    price = normalize(data.price, min(data.price), max(data.price))
     try:
         theta, record = gradient_descent(km, price, float(len(data)))
         if graph is True:
             display(data, theta[0], theta[1], record)
     except (KeyboardInterrupt, SystemExit):
         exit('\nInterrupted')
-    dataset.put_theta('theta.csv', theta)
+    put_theta('dataset/theta.csv', theta)
     print("training done! t0: {} and t1: {} are stored in theta.csv".format(theta[0], theta[1]))
+
+if __name__ == '__main__':
+    main()
