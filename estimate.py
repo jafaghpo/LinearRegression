@@ -18,9 +18,11 @@ def estimate_price(data, theta):
         mileage = input("Please enter a mileage to estimate the car price: ")
         mileage = float(mileage)
     except (TypeError, NameError, SyntaxError, ValueError):
-        exit('error: mileage is not valid')
+        print('The mileage is invalid, try again')
+        return estimate_price(data, theta)
     except EOFError:
-        exit("\nerror: you did not enter a mileage")
+        print('\nYou did not enter a mileage, try again')
+        return estimate_price(data, theta)
     except (KeyboardInterrupt, SystemExit):
         exit('\nInterrupted')
     if mileage < 0:
