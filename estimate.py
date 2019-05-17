@@ -17,8 +17,10 @@ def estimate_price(data, theta):
     try:
         mileage = input("Please enter a mileage to estimate the car price: ")
         mileage = float(mileage)
-    except (TypeError, NameError, SyntaxError) as e:
+    except (TypeError, NameError, SyntaxError, ValueError):
         exit('error: mileage is not valid')
+    except EOFError:
+        exit("\nerror: you did not enter a mileage")
     except (KeyboardInterrupt, SystemExit):
         exit('\nInterrupted')
     if mileage < 0:
@@ -26,8 +28,8 @@ def estimate_price(data, theta):
         return estimate_price(data, theta)
     try:
         mileage = parser.normalize(mileage, min(data.km), max(data.km))
-    except ZeroDivisionError as e:
-        exit('error: {}'.format(e))
+    except (ZeroDivisionError, ValueError):
+        exit('error: the dataset is invalid')
     price = theta[0] + theta[1] * mileage
     if price > 0:
         price = parser.denormalize(price, min(data.price), max(data.price))

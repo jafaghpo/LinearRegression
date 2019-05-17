@@ -34,14 +34,14 @@ def display(data, t0, t1, record):
     plt.plot(X, Y, linestyle='--', linewidth=4.0, color='green')
     plt.ylabel('Price')
     plt.xlabel('Mileage')
-    plt.title('Linear regression')
+    plt.title('Best fit line')
     plt.grid(True)
 
     plt.subplot(2, 2, 2)
-    plt.plot(record['loss'], linewidth=3.0, color='green')
-    plt.ylabel('Loss')
-    plt.xlabel('Iteration')
-    plt.title('Losses over time')
+    plt.plot(record['error'], linewidth=3.0, color='green')
+    plt.ylabel('Error')
+    plt.xlabel('Iterations')
+    plt.title('Error over time')
     plt.grid(True)
 
     plt.subplot(2, 2, 3)
@@ -49,14 +49,14 @@ def display(data, t0, t1, record):
     theta1, = plt.plot(record['t1'], linewidth=3.0, label='t1', color='blue')
     plt.legend([theta0, theta1], ['t0', 't1'], loc='best')
     plt.ylabel('Theta')
-    plt.xlabel('Iteration')
+    plt.xlabel('Iterations')
     plt.title('Theta values over time')
     plt.grid(True)
 
     plt.subplot(2, 2, 4)
     plt.plot(record['lr'], linestyle='-', linewidth=3.0, color='green')
     plt.ylabel('Learning rate')
-    plt.xlabel('Iteration')
+    plt.xlabel('Iterations')
     plt.title('Learning rate over time')
     plt.grid(True)
 
@@ -70,7 +70,7 @@ def bold_driver(LR, old, new):
     return LR * 1.05, new
 
 
-def get_cost(size, theta, km, price):
+def get_error(size, theta, km, price):
 
     total_error = 0
     for i in range(size):
@@ -80,7 +80,7 @@ def get_cost(size, theta, km, price):
 
 def gradient_descent(km, price, M, theta=[0.0, 0.0], i=90):
 
-    record = {'t0':[], 't1':[], 'loss':[], 'lr':[]}
+    record = {'t0':[], 't1':[], 'error':[], 'lr':[]}
     size = int(M)
     LR = 1 / M * 2
     old = [0.0, 0.0]
@@ -96,7 +96,7 @@ def gradient_descent(km, price, M, theta=[0.0, 0.0], i=90):
         LR, sum_theta = bold_driver(LR, old, sum_theta)
         theta[0] = theta[0] - LR * sum_theta[0]
         theta[1] = theta[1] - LR * sum_theta[1]
-        record['loss'].append(get_cost(size, theta, km, price))
+        record['error'].append(get_error(size, theta, km, price))
         record['t0'].append(theta[0])
         record['t1'].append(theta[1])
         record['lr'].append(LR)

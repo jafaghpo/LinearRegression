@@ -25,7 +25,7 @@ def get_data(path):
     try:
         data = read_csv(path, dtype='float')
     except Exception:
-        exit('error: {} cannot be found'.format(path))
+        exit('error: {} cannot be found or is empty'.format(path))
     return data
 
 
