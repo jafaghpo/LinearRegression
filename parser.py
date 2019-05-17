@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!python3
 # coding: utf-8
 
 __author__ = 'John Afaghpour'
@@ -24,8 +24,8 @@ def get_data(path):
 
     try:
         data = read_csv(path, dtype='float')
-    except Exception as e:
-        exit('error: {}'.format(e))
+    except Exception:
+        exit('error: {} cannot be found'.format(path))
     return data
 
 
@@ -41,11 +41,10 @@ def get_theta(path):
     return theta
 
 
-def put_theta(path, theta):
+def store_theta(path, theta):
 
     with open(path, 'w') as f:
         f.write('t0,t1\n{},{}\n'.format(theta[0], theta[1]))
 
 if __name__ == '__main__':
     print('This is a module containing only functions so there is no point in running this file.')
-

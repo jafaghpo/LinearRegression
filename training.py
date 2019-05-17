@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!python3
 # coding: utf-8
 
 __author__ = 'John Afaghpour'
@@ -10,9 +10,8 @@ __author__ = 'John Afaghpour'
 """
 
 from sys import argv
-from dataset.action import *
+import parser
 import matplotlib.pyplot as plt
-
 
 def hypothesis(x, theta):
 
@@ -24,11 +23,11 @@ def display(data, t0, t1, record):
     X = [min(data.km), max(data.km)]
     Y = []
     for m in X:
-        m = t1 * normalize(m, min(data.km), max(data.km)) + t0
-        price = denormalize(m, min(data.price), max(data.price))
+        m = t1 * parser.normalize(m, min(data.km), max(data.km)) + t0
+        price = parser.denormalize(m, min(data.price), max(data.price))
         Y.append(price)
 
-    fig = plt.figure(figsize=(25, 15), facecolor='beige')
+    fig = plt.figure(figsize=(23, 12))
     fig.canvas.set_window_title('Training records')
     plt.subplot(2, 2, 1)
     plt.plot(data.km, data.price, 'o')
@@ -85,18 +84,18 @@ def gradient_descent(km, price, M, theta=[0.0, 0.0], i=90):
     size = int(M)
     LR = 1 / M * 2
     old = [0.0, 0.0]
-    losses = [0.0, 0.0]
+    sum_theta = [0.0, 0.0]
     for _ in range(i):
-        old = [losses[0] / M, losses[1] / M]
-        losses = [0.0, 0.0]
+        old = [sum_theta[0] / M, sum_theta[1] / M]
+        sum_theta = [0.0, 0.0]
         for i in range(size):
-            losses[0] += hypothesis(km[i], theta) - price[i]
-            losses[1] += (hypothesis(km[i], theta) - price[i]) * km[i]
-        losses[0] /= M
-        losses[1] /= M
-        LR, losses = bold_driver(LR, old, losses)
-        theta[0] = theta[0] - LR * losses[0]
-        theta[1] = theta[1] - LR * losses[1]
+            sum_theta[0] += hypothesis(km[i], theta) - price[i]
+            sum_theta[1] += (hypothesis(km[i], theta) - price[i]) * km[i]
+        sum_theta[0] /= M
+        sum_theta[1] /= M
+        LR, sum_theta = bold_driver(LR, old, sum_theta)
+        theta[0] = theta[0] - LR * sum_theta[0]
+        theta[1] = theta[1] - LR * sum_theta[1]
         record['loss'].append(get_cost(size, theta, km, price))
         record['t0'].append(theta[0])
         record['t1'].append(theta[1])
@@ -109,16 +108,16 @@ def main():
     graph = True if 'graph' in argv else False
     if not graph:
         print('pro tip: you can display graphs with "graph" argument')
-    data = get_data('dataset/data.csv')
-    km = normalize(data.km, min(data.km), max(data.km))
-    price = normalize(data.price, min(data.price), max(data.price))
+    data = parser.get_data('data.csv')
+    km = parser.normalize(data.km, min(data.km), max(data.km))
+    price = parser.normalize(data.price, min(data.price), max(data.price))
     try:
         theta, record = gradient_descent(km, price, float(len(data)))
         if graph is True:
             display(data, theta[0], theta[1], record)
     except (KeyboardInterrupt, SystemExit):
         exit('\nInterrupted')
-    put_theta('dataset/theta.csv', theta)
+    parser.store_theta('theta.csv', theta)
     print("training done! t0: {} and t1: {} are stored in theta.csv".format(theta[0], theta[1]))
 
 if __name__ == '__main__':
