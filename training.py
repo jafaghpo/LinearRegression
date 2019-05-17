@@ -78,14 +78,15 @@ def get_error(size, theta, km, price):
     return total_error / float(size)
 
 
-def gradient_descent(km, price, M, theta=[0.0, 0.0], i=90):
+def gradient_descent(km, price, M, theta=[0.0, 0.0]):
 
     record = {'t0':[], 't1':[], 'error':[], 'lr':[]}
     size = int(M)
-    LR = 1 / M * 2
+    LR = (1 / M * 2)
     old = [0.0, 0.0]
     sum_theta = [0.0, 0.0]
-    for _ in range(i):
+    prev_error = 0.0
+    while True:
         old = [sum_theta[0] / M, sum_theta[1] / M]
         sum_theta = [0.0, 0.0]
         for i in range(size):
@@ -96,11 +97,14 @@ def gradient_descent(km, price, M, theta=[0.0, 0.0], i=90):
         LR, sum_theta = bold_driver(LR, old, sum_theta)
         theta[0] = theta[0] - LR * sum_theta[0]
         theta[1] = theta[1] - LR * sum_theta[1]
-        record['error'].append(get_error(size, theta, km, price))
+        error = get_error(size, theta, km, price)
+        record['error'].append(error)
         record['t0'].append(theta[0])
         record['t1'].append(theta[1])
         record['lr'].append(LR)
-    return theta, record
+        if abs(error - prev_error) < 0.000001:
+            return theta, record
+        prev_error = error
 
 
 def main():
