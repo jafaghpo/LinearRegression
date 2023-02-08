@@ -33,11 +33,12 @@ The process of linear regression typically involves the following steps:
 To run these programs, you will need to have Python 3.9 and the following modules installed:
 
 - matplotlib
+- numpy
 
-to install matplotlib, run the following command:
+to install the libraries, run the following command:
 
 ```bash
-pip3 install matplotlib
+pip3 install -r requirements.txt
 ```
 
 ## Program 1: predict.py
