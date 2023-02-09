@@ -124,14 +124,18 @@ def load_theta(filename: str) -> list[float]:
     Returns:
         A list containing the thetas.
     """
-    with open(filename, "r") as f:
-        reader = csv.reader(f)
-        try:
-            row = next(reader)
-            return [float(row[0]), float(row[1])]
-        except (ValueError, TypeError):
-            print("Incorrect format of theta values, using default thetas (0, 0)")
-            return [0, 0]
+    try:
+        with open(filename, "r") as f:
+            reader = csv.reader(f)
+            try:
+                row = next(reader)
+                return [float(row[0]), float(row[1])]
+            except (ValueError, TypeError):
+                print("Incorrect format of theta values, using default thetas (0, 0)")
+                return [0, 0]
+    except FileNotFoundError:
+        print("Theta file not found, using default thetas (0, 0)")
+        return [0, 0]
 
 
 def get_mileage():
