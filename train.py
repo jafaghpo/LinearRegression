@@ -6,21 +6,23 @@ from predict import (
     predict,
     load_data,
     normalize_data,
-    denormalize_float,
-    denormalize_data,
+    denormalize_theta,
 )
 
 
 def train(
-    mileages: list[float], prices: list[float], learning_rate: float, max_iter: int
+    mileages: list[float],
+    prices: list[float],
+    learning_rate: float = 0.1,
+    max_iter: int = 100000,
 ) -> dict[str, list[tuple[float, float] | float]]:
     """
     Trains a linear regression model using the gradient descent algorithm
     on the given dataset.
 
     Args:
-        mileages: A list of mileage values.
-        prices: A list of price values.
+        mileages: A list of normalized mileage values.
+        prices: A list of normalized price values.
         learning_rate: The learning rate for the gradient descent algorithm.
         max_iter: The maximum number of iterations to run
                     the gradient descent algorithm for.
@@ -32,7 +34,8 @@ def train(
     theta = [random.uniform(-0.1, 0.1), random.uniform(-0.1, 0.1)]
     record = {"theta": [], "learning_rate": [], "error": []}
 
-    for i in range(max_iter):
+    i = 0
+    while i < max_iter:
         theta, learning_rate, error = gradient_descent(
             mileages, prices, theta, learning_rate
         )
@@ -50,8 +53,9 @@ def train(
 
         if i > 0 and abs(record["error"][-1] - record["error"][-2]) < 1e-5:
             break
+        i += 1
 
-    return record
+    return record, i
 
 
 def gradient_descent(
@@ -122,7 +126,7 @@ def plot_results(
                 and theta values.
     """
     # Create the figure and subplots
-    fig = plt.figure(figsize=(11, 11))
+    fig = plt.figure(figsize=(9, 9))
     ax = fig.subplots(2, 2)
 
     # Plot the best fit line
@@ -180,7 +184,7 @@ def plot_results(
     )
     Z = Z.reshape(X.shape)
 
-    fig = plt.figure(figsize=(11, 11))
+    fig = plt.figure(figsize=(9, 9))
     ax = fig.add_subplot(111, projection="3d")
     ax.plot_surface(X, Y, Z)
     ax.set_xlabel("Theta 0")
@@ -196,16 +200,20 @@ def main():
     mileages, prices = load_data("data.csv")
     normalized_mileages = normalize_data(mileages, min(mileages), max(mileages))
     normalized_prices = normalize_data(prices, min(prices), max(prices))
-    learning_rate = 0.01
-    max_iter = 1000
-    record = train(normalized_mileages, normalized_prices, learning_rate, max_iter)
-    theta = [
-        denormalize_data(theta, min(prices), max(prices)) for theta in record["theta"]
-    ]
-    record["theta"] = theta
+    record, iterations = train(normalized_mileages, normalized_prices)
+    theta = denormalize_theta(
+        list(record["theta"][-1]),
+        min(prices),
+        max(prices),
+        min(mileages),
+        max(mileages),
+    )
     with open("theta.csv", "w") as f:
-        f.write(",".join(map(str, record["theta"][-1])))
+        f.write(",".join(map(str, theta)))
 
+    print(f"Number of iterations: {iterations}")
+    print(f"Prediction (y = ax + b): price = {theta[1]:.2f} * mileage + {theta[0]:.2f}")
+    print(f"Accuracy: {100 - record['error'][-1] / 2 * 100:.2f}%")
     plot_results(normalized_mileages, normalized_prices, record)
 
 

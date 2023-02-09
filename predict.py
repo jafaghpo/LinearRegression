@@ -58,6 +58,26 @@ def denormalize_data(values: list[float], min: float, max: float) -> list[float]
     return [denormalize_float(x, min, max) for x in values]
 
 
+def denormalize_theta(
+    theta: list[float], y_min: int, y_max: int, x_min: int, x_max: int
+) -> list[float]:
+    """Denormalize the thetas.
+
+    Args:
+        theta: A list of normalized thetas to be denormalized.
+        y_min: The minimum value in the original list of prices.
+        y_max: The maximum value in the original list of prices.
+        x_min: The minimum value in the original list of mileages.
+        x_max: The maximum value in the original list of mileages.
+
+    Returns:
+        A denormalized copy of the list of thetas.
+    """
+    theta[0] = theta[0] * (y_max - y_min) + y_min
+    theta[1] = theta[1] * (y_max - y_min) / (x_max - x_min)
+    return theta
+
+
 def predict(mileage: float, theta: list[float]) -> float:
     """Predict the price of a car based on its mileage using the given thetas.
 
@@ -126,7 +146,6 @@ def get_mileage():
                 raise ValueError("Mileage can't be negative")
             if mileage > 999999999:
                 raise ValueError("Mileage is too large")
-            print(mileage)
             return mileage
         except ValueError as e:
             print(str(e).capitalize())
@@ -144,11 +163,10 @@ def main():
         print("Incorrect format of theta values")
         return
     mileage = get_mileage()
-    print(theta)
     price = predict(mileage, theta)
     if price < 0:
         price = 0
-    print(f"Predicted price for a car with {int(mileage)} mileage: {int(price)}")
+    print(f"Predicted price for a car with {int(mileage)}km: {int(price)}$")
 
 
 if __name__ == "__main__":
